@@ -1,10 +1,7 @@
-import com.ing.baker.recipe.common.{FiresOneOfEvents, ProvidesIngredient}
+import com.ing.baker.recipe.common.FiresOneOfEvents
 import com.ing.baker.recipe.scaladsl.{Event, Ingredient, Interaction, Recipe}
 
 package object demo {
-  implicit class IngredientOps(i: Ingredient[_]) {
-    def instance(value: Any): Map[String, Any] = Map(i.name -> value)
-  }
 
   val milk = Ingredient[String]("milk")
   val eggs = Ingredient[String]("eggs")
@@ -16,19 +13,19 @@ package object demo {
 
   val crepeServed = Event("CrepeServed")
 
-  val groceriesDone = new Event("GroceriesDone", Seq(milk, eggs, flour, butter, creme), maxFiringLimit = Some(1))
+  val groceriesDone = new Event("GroceriesDone", Seq(milk, eggs, flour, butter, creme), Some(1))
   val kidsHungry = Event("KidsAreHungry")
 
   val batterMixed = Event("BatterMixed", batter)
   val crepeCooked = Event("CrepeCooked", crepe)
 
-  val mixFirstFour = Interaction(
-    name = "MixFirstFour",
+  val mixFirstThree = Interaction(
+    name = "MixFirstThree",
     inputIngredients = Seq(milk, eggs, flour),
     output = FiresOneOfEvents(batterMixed)
   )
 
-  val mixFirstFourImpl = mixFirstFour implement {
+  val mixFirstThreeImpl = mixFirstThree implement {
     (milk: String, eggs: String, flour: String) =>
       println(s"mixing $milk, $eggs, and $flour")
       batterMixed.instance("batter")
@@ -58,7 +55,11 @@ package object demo {
       crepeServed.instance()
   }
 
-  val crepeRecipe: Recipe = Recipe("ScaleByTheBayLovesCrepeWithCreme")
-    .withInteractions(serveCrepe, mixFirstFour.withRequiredEvent(kidsHungry), cookCrepe)
+  val crepeRecipe = Recipe("ScaleByTheBayLovesCrepeWithCreme")
+    .withInteractions(
+      serveCrepe,
+      mixFirstThree.withRequiredEvent(kidsHungry),
+      cookCrepe
+    )
     .withSensoryEvents(groceriesDone, kidsHungry)
 }
