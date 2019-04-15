@@ -18,7 +18,7 @@ class BakerSpec extends FlatSpec with Matchers {
   "A crepe with cream recipe" should "compile and validate" in {
     val compiledRecipe = RecipeCompiler.compileRecipe(crepeRecipe)
 
-    compiledRecipe.validationErrors should be ('empty)
+    compiledRecipe.validationErrors should be('empty)
   }
 
   "Baker" should "bake the crepe recipe" in {
